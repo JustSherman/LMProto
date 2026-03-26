@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeMart · Discount Scheduler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0F6E56;--teal-l:#E1F5EE;--teal-m:#1D9E75;--teal-d:#085041;
+  --coral:#E8593C;--coral-l:#FFF1EE;--coral-m:#F07A5E;
+  --orange:#F5A623;--orange-l:#FEF8ED;
+  --slate:#2C3E50;--slate-l:#F7F8FA;--slate-m:#8493A3;--slate-d:#1A2636;
+  --white:#fff;--border:#E2E8EF;--border-d:#C8D3DE;
+  --font:'DM Sans',sans-serif;--r:10px;--rl:16px;
+}
+body{font-family:var(--font);color:var(--slate);background:#EEF2F6;min-height:100vh;padding:20px}
+.shell{max-width:1100px;margin:0 auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.12)}
+
+/* HEADER */
+.hdr{background:var(--teal);padding:16px 28px;display:flex;align-items:center;justify-content:space-between}
+.logo{color:white;font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.logo span{font-weight:300;opacity:.8}
+.steps{display:flex;align-items:center;gap:6px}
+.sp{padding:5px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .2s}
+.sp.active{background:white;color:var(--teal)}
+.sp.done{background:rgba(255,255,255,.2);color:white;border-color:rgba(255,255,255,.3)}
+.sp.pending{color:rgba(255,255,255,.45);border-color:rgba(255,255,255,.15)}
+.sa{color:rgba(255,255,255,.35);font-size:11px}
+
+/* CONTENT */
+.content{padding:28px;background:var(--slate-l);min-height:580px}
+.stitle{font-size:24px;font-weight:700;color:var(--slate);margin-bottom:5px;letter-spacing:-.4px}
+.ssub{font-size:14px;color:var(--slate-m);margin-bottom:26px}
+
+/* BUTTONS */
+.btn{border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:500;font-family:var(--font);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-p{background:var(--teal);color:white}.btn-p:hover{background:var(--teal-d)}
+.btn-s{background:white;color:var(--slate);border:1px solid var(--border-d)}.btn-s:hover{background:var(--slate-l)}
+.btn-lg{padding:14px 30px;font-size:15px;border-radius:11px}
+.btn-sm{padding:6px 13px;font-size:12px;border-radius:7px}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* STEP 1 */
+.ptgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:26px}
+.ptcard{background:white;border:1.5px solid var(--border);border-radius:var(--rl);padding:22px;cursor:pointer;transition:all .2s;position:relative}
+.ptcard:hover{border-color:var(--teal-m);box-shadow:0 4px 18px rgba(15,110,86,.09)}
+.ptcard.sel{border-color:var(--teal);background:var(--teal-l)}
+.ptcard.sel::after{content:'✓';position:absolute;top:13px;right:15px;width:22px;height:22px;background:var(--teal);color:white;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center}
+.ptic{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:13px}
+.ptic.intranet{background:#EEF2FF}.ptic.slack{background:#FFF3EC}.ptic.email{background:#EDF9F4}
+.ptn{font-size:15px;font-weight:600;margin-bottom:5px}
+.ptd{font-size:12px;color:var(--slate-m);line-height:1.55}
+
+.plist{display:flex;flex-direction:column;gap:11px;margin-bottom:24px}
+.pcard{background:white;border:1px solid var(--border);border-radius:var(--r);padding:15px 18px;display:flex;align-items:center;gap:13px}
+.pcic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.pci{flex:1}.pcn{font-size:14px;font-weight:500}.pct{font-size:12px;color:var(--slate-m)}
+.pcst{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.pcst.verified{background:var(--teal-l);color:var(--teal-d)}
+.pcst.pending{background:var(--orange-l);color:#8A5A00}
+
+.spanel{background:white;border:1px solid var(--border);border-radius:var(--rl);padding:22px;margin-bottom:22px}
+.spanel h3{font-size:16px;font-weight:600;margin-bottom:5px}
+.spanel p{font-size:13px;color:var(--slate-m);margin-bottom:16px}
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:11px;font-weight:600;color:var(--slate-m);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+.fld input,.fld select{width:100%;border:1px solid var(--border-d);border-radius:9px;padding:9px 13px;font-size:14px;font-family:var(--font);color:var(--slate);background:white;outline:none}
+.fld input:focus,.fld select:focus{border-color:var(--teal-m);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.codeb{background:var(--slate-d);border-radius:9px;padding:15px;font-family:monospace;font-size:12px;color:#A8D5C2;position:relative;margin-bottom:13px;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+.cpybtn{position:absolute;top:9px;right:9px;background:rgba(255,255,255,.1);color:white;border:none;border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font)}
+.cpybtn:hover{background:rgba(255,255,255,.2)}
+
+/* STEP 2 - CALENDAR */
+.calh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.navrow{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.navbtn{height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--border-d);background:white;cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font);color:var(--slate);display:flex;align-items:center;gap:5px;transition:all .15s}
+.navbtn:hover:not(:disabled){background:var(--teal-l);border-color:var(--teal-m);color:var(--teal)}
+.navbtn:disabled{opacity:.35;cursor:default}
+.navpos{font-size:13px;font-weight:500;color:var(--slate);min-width:130px;text-align:center}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--slate-m)}
+.legdot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.wcard{background:white;border:1.5px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:box-shadow .15s}
+.wcard:hover{box-shadow:0 3px 16px rgba(0,0,0,.07)}
+.wcard.cur{border-color:var(--teal-m)}
+.wcard.past{opacity:.72}
+.wcard.sea{border-color:var(--orange)}
+
+.wh{padding:13px 16px;background:var(--slate-d);color:white;display:flex;align-items:flex-start;justify-content:space-between}
+.wcard.cur .wh{background:var(--teal-d)}
+.wcard.sea .wh{background:linear-gradient(135deg,#B83418 0%,#E8593C 55%,#F5A623 100%)}
+.wnum{font-size:11px;font-weight:500;opacity:.65;text-transform:uppercase;letter-spacing:.6px}
+.wdates{font-size:14px;font-weight:700;margin:2px 0}
+.wmonth{font-size:11px;opacity:.7}
+.nowbadge{font-size:9px;font-weight:700;background:rgba(255,255,255,.22);padding:2px 7px;border-radius:8px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.seabadge{background:rgba(255,255,255,.22);font-size:9px;font-weight:700;padding:3px 8px;border-radius:10px;max-width:90px;text-align:center;line-height:1.4;letter-spacing:.2px}
+
+.wb{padding:13px}
+.wcols{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.colh{font-size:10px;font-weight:700;color:var(--slate-m);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+
+.dtiles{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow-y:auto;padding-right:2px}
+.dtiles::-webkit-scrollbar{width:3px}
+.dtiles::-webkit-scrollbar-thumb{background:var(--border-d);border-radius:2px}
+.dtile{background:var(--teal-l);border:1px solid #B0DDCE;border-radius:7px;padding:5px 8px;font-size:11px;cursor:grab;display:flex;align-items:center;gap:5px;transition:all .15s;user-select:none;line-height:1.3}
+.dtile:hover{background:#C5E9DC;border-color:var(--teal-m);transform:translateY(-1px);box-shadow:0 2px 7px rgba(15,110,86,.13)}
+.dtile:active{cursor:grabbing}
+.dtile.srec{background:var(--orange-l);border-color:#F5C875}
+.dtile.srec:hover{background:#FEF0CC}
+.dtem{font-size:13px;flex-shrink:0}
+.dttx{flex:1;color:var(--slate)}
+.dth{color:var(--slate-m);font-size:9px;opacity:.4}
+
+.dzones{display:flex;flex-direction:column;gap:6px}
+.dz{border:1.5px dashed var(--border-d);border-radius:7px;padding:6px 8px;min-height:36px;display:flex;flex-direction:column;gap:3px;transition:all .15s}
+.dz.over{border-color:var(--teal-m);background:var(--teal-l);border-style:solid}
+.dzlbl{font-size:10px;color:var(--slate-m);display:flex;align-items:center;gap:4px;margin-bottom:2px}
+.adic{background:var(--coral-l);border:1px solid #F5C4B3;border-radius:5px;padding:3px 7px;font-size:10px;display:flex;align-items:center;gap:4px;color:#7A3020}
+.adrem{cursor:pointer;color:#C04828;font-size:13px;font-weight:700;margin-left:auto;line-height:1}
+.adrem:hover{color:#8A2010}
+
+.wf{padding:9px 13px;border-top:1px solid var(--border);display:flex;justify-content:flex-end}
+.pvbtn{font-size:11px;padding:5px 11px;background:white;border:1px solid var(--border-d);border-radius:7px;cursor:pointer;color:var(--slate);font-family:var(--font);display:flex;align-items:center;gap:4px;transition:all .15s}
+.pvbtn:hover{background:var(--teal-l);border-color:var(--teal-m);color:var(--teal)}
+
+.savebar{margin-top:26px;background:white;border:1px solid var(--border);border-radius:var(--rl);padding:18px 22px;display:flex;align-items:center;justify-content:space-between}
+.progwrap{display:flex;flex-direction:column;gap:5px}
+.proglbl{font-size:12px;color:var(--slate-m)}
+.progbar{width:220px;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.progfill{height:100%;background:var(--teal);border-radius:4px;transition:width .4s}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(20,30,40,.58);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal{background:white;border-radius:var(--rl);width:100%;max-width:570px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.22)}
+.mhdr{padding:20px 22px 15px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:white;border-radius:var(--rl) var(--rl) 0 0;z-index:2}
+.mtitle{font-size:18px;font-weight:700}
+.msub{font-size:13px;color:var(--slate-m);margin-top:2px}
+.mclose{width:30px;height:30px;border-radius:50%;background:var(--border);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--slate-m);font-family:var(--font);flex-shrink:0}
+.mclose:hover{background:var(--border-d);color:var(--slate)}
+.mbody{padding:22px}
+.mtabs{display:flex;gap:5px;margin-bottom:18px;padding:4px;background:var(--slate-l);border-radius:9px}
+.mtab{flex:1;text-align:center;padding:8px;border-radius:7px;border:none;background:transparent;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;color:var(--slate-m);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.mtab.active{background:white;color:var(--slate);box-shadow:0 1px 4px rgba(0,0,0,.09)}
+.mtab:hover:not(.active){background:rgba(255,255,255,.6)}
+.tpane{display:none}.tpane.show{display:block}
+
+/* PREVIEWS */
+.pv-intra{border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.pv-ibar{background:var(--teal);padding:11px 15px;display:flex;align-items:center}
+.pv-ilogo{color:white;font-size:13px;font-weight:600}
+.pv-ibody{padding:15px;background:#F9FBFC}
+.iwid{background:white;border:1px solid var(--border);border-radius:9px;padding:15px;display:flex;gap:13px}
+.wacc{width:5px;border-radius:3px;flex-shrink:0;background:var(--teal)}
+.wcnt{flex:1}
+.weyb{font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.wofrs{display:flex;flex-direction:column;gap:8px;margin:11px 0}
+.wofr{display:flex;align-items:center;gap:10px;background:var(--slate-l);border-radius:7px;padding:8px 11px}
+.obadge{font-size:11px;font-weight:700;color:var(--coral);white-space:nowrap}
+.oname{font-size:12px;font-weight:500}
+.osub{font-size:11px;color:var(--slate-m)}
+.wcta{background:var(--teal);color:white;border:none;border-radius:7px;padding:8px 15px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)}
+
+.pv-slack{background:#3F0E40;border-radius:11px;padding:13px}
+.slside{color:rgba(255,255,255,.45);font-size:12px;margin-bottom:10px}
+.slmsg{background:rgba(255,255,255,.07);border-radius:9px;padding:13px}
+.slbh{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.slav{width:30px;height:30px;border-radius:7px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:15px;color:white;font-weight:700;flex-shrink:0}
+.slbn{color:white;font-size:13px;font-weight:600}
+.slba{color:rgba(255,255,255,.3);font-size:10px;margin-left:4px}
+.sltx{color:#D0D5DB;font-size:13px;margin-bottom:9px;line-height:1.55}
+.slatt{border-left:4px solid var(--teal-m);padding-left:11px}
+.slat{color:var(--teal-m);font-size:13px;font-weight:600;margin-bottom:6px}
+.slai{color:#D0D5DB;font-size:12px;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+
+.pv-email{border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.emhdr{background:var(--teal);padding:18px 22px;text-align:center}
+.emlogo{color:white;font-size:19px;font-weight:700;letter-spacing:-.4px}
+.emtag{color:rgba(255,255,255,.65);font-size:11px;margin-top:3px}
+.embody{padding:22px;background:white}
+.emgr{font-size:15px;font-weight:600;margin-bottom:6px}
+.emin{font-size:13px;color:var(--slate-m);margin-bottom:17px;line-height:1.55}
+.emofrs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:17px}
+.emofc{background:var(--slate-l);border-radius:9px;padding:13px;text-align:center}
+.emopct{font-size:20px;font-weight:700;color:var(--coral)}
+.emoname{font-size:12px;font-weight:500;margin:2px 0}
+.emobr{font-size:11px;color:var(--slate-m)}
+.emctaw{text-align:center}
+.emcta{background:var(--teal);color:white;border:none;border-radius:9px;padding:11px 26px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.emftr{background:var(--slate-l);padding:13px 22px;font-size:11px;color:var(--slate-m);text-align:center}
+
+/* SUCCESS */
+.succ{text-align:center;padding:48px 22px}
+.sico{font-size:52px;margin-bottom:18px}
+.stit{font-size:26px;font-weight:700;margin-bottom:9px}
+.ssb{font-size:14px;color:var(--slate-m);max-width:420px;margin:0 auto 28px;line-height:1.65}
+.scards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto}
+.sc{background:white;border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
+.scn{font-size:30px;font-weight:700;color:var(--teal)}
+.scl{font-size:12px;color:var(--slate-m);margin-top:3px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="hdr">
+    <div class="logo">LifeMart <span>· Discount Scheduler</span></div>
+    <div class="steps" id="steps-nav">
+      <span class="sp active" onclick="tryStep(1)" data-step="1">1 · Placements</span>
+      <span class="sa">›</span>
+      <span class="sp pending" onclick="tryStep(2)" data-step="2">2 · Schedule</span>
+      <span class="sa">›</span>
+      <span class="sp pending" data-step="3">3 · Activate</span>
+    </div>
+  </div>
+  <div class="content" id="main"></div>
+</div>
+<div id="mroot"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const DISCOUNTS = [
+  {id:'d01',emoji:'🛒',label:'50% off Costco Membership',short:'50% Costco',pct:'50%',brand:'Costco'},
+  {id:'d02',emoji:'🏨',label:'40% off Hotels',short:'40% Hotels',pct:'40%',brand:'Hotels.com'},
+  {id:'d03',emoji:'🛵',label:'50% off DashPass',short:'50% DashPass',pct:'50%',brand:'DoorDash'},
+  {id:'d04',emoji:'👶',label:'50% off Care.com Membership',short:'50% Care.com',pct:'50%',brand:'Care.com'},
+  {id:'d05',emoji:'🥡',label:'20–40% off Food & Home Delivery',short:'40% Food Del.',pct:'40%',brand:'Multiple'},
+  {id:'d06',emoji:'🌿',label:'15% off HelloFresh Meal Kits',short:'15% HelloFresh',pct:'15%',brand:'HelloFresh'},
+  {id:'d07',emoji:'✈️',label:'35% off Flights & Vacation Packages',short:'35% Flights',pct:'35%',brand:'Expedia'},
+  {id:'d08',emoji:'💪',label:'30% off Gym Membership',short:'30% Gym',pct:'30%',brand:'Anytime Fitness'},
+  {id:'d09',emoji:'🎬',label:'25% off Movie Tickets',short:'25% Movies',pct:'25%',brand:'AMC / Regal'},
+  {id:'d10',emoji:'💻',label:'20% off Electronics & Accessories',short:'20% Electronics',pct:'20%',brand:'Best Buy'},
+  {id:'d11',emoji:'🐾',label:'30% off Pet Insurance',short:'30% Pet Ins.',pct:'30%',brand:'Nationwide Pets'},
+  {id:'d12',emoji:'🚗',label:'15% off Car Rentals',short:'15% Car Rental',pct:'15%',brand:'Enterprise'},
+  {id:'d13',emoji:'🏠',label:'10% off Home Security Systems',short:'10% Home Sec.',pct:'10%',brand:'ADT'},
+  {id:'d14',emoji:'👗',label:'25% off Apparel & Footwear',short:'25% Apparel',pct:'25%',brand:'Nike / Gap'},
+  {id:'d15',emoji:'📱',label:'Free Month of SiriusXM',short:'Free SiriusXM',pct:'Free',brand:'SiriusXM'},
+  {id:'d16',emoji:'🌸',label:'20% off 1-800-Flowers + Free Ship',short:'20% Flowers',pct:'20%',brand:'1-800-Flowers'},
+  {id:'d17',emoji:'🍕',label:'50% off DashPass — first 3 months',short:'50% DashPass Pro',pct:'50%',brand:'DoorDash'},
+];
+
+const SEASONAL = {
+  1:{label:"🎉 New Year's",recs:[
+    {id:'s01',emoji:'💪',label:'Gym Membership: 30% off — New Year goals',short:'New Year Gym',pct:'30%',brand:'Anytime Fitness'},
+    {id:'s02',emoji:'🥗',label:'Meal Planning apps: 25% off',short:'25% Meal Plan',pct:'25%',brand:'Noom'},
+  ]},
+  2:{label:"🎉 New Year's",recs:[
+    {id:'s01',emoji:'💪',label:'Gym Membership: 30% off — New Year goals',short:'New Year Gym',pct:'30%',brand:'Anytime Fitness'},
+    {id:'s03',emoji:'🌿',label:'HelloFresh: 50% off first box',short:'50% HelloFresh',pct:'50%',brand:'HelloFresh'},
+  ]},
+  5:{label:"🌹 Valentine's Day",recs:[
+    {id:'s04',emoji:'🌸',label:'20% off 1-800-Flowers + Free Shipping',short:'20% Flowers',pct:'20%',brand:'1-800-Flowers'},
+    {id:'s05',emoji:'🍽️',label:'15% off Restaurant Gift Cards',short:'15% Restaurants',pct:'15%',brand:'OpenTable'},
+    {id:'s06',emoji:'🍫',label:'Free Shipping on Gift Boxes — Godiva',short:'Free Gift Ship',pct:'Free',brand:'Godiva'},
+  ]},
+  6:{label:"🌹 Valentine's Day",recs:[
+    {id:'s04',emoji:'🌸',label:'20% off 1-800-Flowers + Free Shipping',short:'20% Flowers',pct:'20%',brand:'1-800-Flowers'},
+    {id:'s05',emoji:'🍽️',label:'15% off Restaurant Gift Cards',short:'15% Restaurants',pct:'15%',brand:'OpenTable'},
+  ]},
+  10:{label:"🍀 St. Patrick's Day",recs:[
+    {id:'s07',emoji:'🛵',label:'50% off DashPass — dining & delivery',short:'50% DashPass',pct:'50%',brand:'DoorDash'},
+    {id:'s08',emoji:'🎬',label:'25% off Movie & Live Event Tickets',short:'25% Tickets',pct:'25%',brand:'Ticketmaster'},
+  ]},
+  11:{label:"🍀 St. Patrick's Day",recs:[
+    {id:'s07',emoji:'🛵',label:'50% off DashPass — dining & delivery',short:'50% DashPass',pct:'50%',brand:'DoorDash'},
+  ]},
+  12:{label:"🌸 Spring is Here",recs:[
+    {id:'s09',emoji:'🌱',label:'Sunday Lawn Care: Free Soil Analysis',short:'Free Lawn Analysis',pct:'Free',brand:'Sunday Lawn'},
+    {id:'s10',emoji:'🏠',label:'Gutter Guard: 50% off Parts',short:'50% Gutter Guard',pct:'50%',brand:'LeafFilter'},
+  ]},
+  14:{label:"🌸 Spring Deals",recs:[
+    {id:'s09',emoji:'🌱',label:'Sunday Lawn Care: Free Soil Analysis',short:'Free Lawn Analysis',pct:'Free',brand:'Sunday Lawn'},
+    {id:'s10',emoji:'🏠',label:'Gutter Guard: 50% off Parts',short:'50% Gutter Guard',pct:'50%',brand:'LeafFilter'},
+    {id:'s11',emoji:'🛒',label:'Home Depot Gift Cards — Spring refresh',short:'Home Depot GC',pct:'+5%',brand:'Home Depot'},
+  ]},
+  15:{label:"🌸 Spring Deals",recs:[
+    {id:'s09',emoji:'🌱',label:'Sunday Lawn Care: Free Soil Analysis',short:'Free Lawn Analysis',pct:'Free',brand:'Sunday Lawn'},
+    {id:'s11',emoji:'🛒',label:'Home Depot Gift Cards — Spring refresh',short:'Home Depot GC',pct:'+5%',brand:'Home Depot'},
+  ]},
+  19:{label:"🌺 Mother's Day",recs:[
+    {id:'s13',emoji:'💆',label:"Spa & Wellness: 25% off",short:'25% Spa',pct:'25%',brand:'Spafinder'},
+    {id:'s14',emoji:'🌸',label:"1-800-Flowers: Free Delivery",short:'Free Flowers Del.',pct:'Free Del.',brand:'1-800-Flowers'},
+    {id:'s15',emoji:'🍽️',label:"15% off Restaurant Gift Cards",short:'15% Restaurants',pct:'15%',brand:'OpenTable'},
+  ]},
+  20:{label:"🌺 Mother's Day",recs:[
+    {id:'s13',emoji:'💆',label:"Spa & Wellness: 25% off",short:'25% Spa',pct:'25%',brand:'Spafinder'},
+    {id:'s14',emoji:'🌸',label:"1-800-Flowers: Free Delivery",short:'Free Flowers Del.',pct:'Free Del.',brand:'1-800-Flowers'},
+  ]},
+  26:{label:"☀️ Summer Kickoff",recs:[
+    {id:'s16',emoji:'🏖️',label:'Theme Park Passes: 20% off',short:'20% Theme Parks',pct:'20%',brand:'Six Flags'},
+    {id:'s17',emoji:'✈️',label:'Vacation Packages: 35% off',short:'35% Vacations',pct:'35%',brand:'Expedia'},
+  ]},
+  27:{label:"🎆 4th of July",recs:[
+    {id:'s18',emoji:'🍖',label:'BBQ & Food Delivery: 30% off',short:'30% BBQ Del.',pct:'30%',brand:'DoorDash'},
+    {id:'s17',emoji:'✈️',label:'Vacation Packages: 35% off',short:'35% Vacations',pct:'35%',brand:'Expedia'},
+  ]},
+  28:{label:"🎆 4th of July",recs:[
+    {id:'s18',emoji:'🍖',label:'BBQ & Food Delivery: 30% off',short:'30% BBQ Del.',pct:'30%',brand:'DoorDash'},
+  ]},
+  35:{label:"🍎 Back to School",recs:[
+    {id:'s19',emoji:'💻',label:'Electronics & Laptops: 20% off',short:'20% Electronics',pct:'20%',brand:'Best Buy'},
+    {id:'s20',emoji:'📚',label:'Office & School Supplies: 25% off',short:'25% Supplies',pct:'25%',brand:'Staples'},
+  ]},
+  36:{label:"🍎 Back to School",recs:[
+    {id:'s19',emoji:'💻',label:'Electronics & Laptops: 20% off',short:'20% Electronics',pct:'20%',brand:'Best Buy'},
+    {id:'s21',emoji:'🎒',label:'Tutoring & Learning Apps: free trial',short:'Free Tutoring',pct:'Free',brand:'Tutor.com'},
+  ]},
+  44:{label:"🦃 Thanksgiving",recs:[
+    {id:'s22',emoji:'🛒',label:'Grocery Delivery: 20% off your order',short:'20% Grocery Del.',pct:'20%',brand:'Instacart'},
+    {id:'s23',emoji:'✈️',label:'Travel Home: flights 30% off',short:'30% Travel Home',pct:'30%',brand:'Expedia'},
+  ]},
+  45:{label:"🦃 Thanksgiving",recs:[
+    {id:'s22',emoji:'🛒',label:'Grocery Delivery: 20% off your order',short:'20% Grocery Del.',pct:'20%',brand:'Instacart'},
+  ]},
+  48:{label:"🎄 Holiday Season",recs:[
+    {id:'s24',emoji:'🎁',label:'Gift Card Bundles: extra 10% value',short:'Gift Card Bonus',pct:'+10%',brand:'Multiple'},
+    {id:'s25',emoji:'🌸',label:'1-800-Flowers: Holiday arrangements 20% off',short:'Holiday Flowers',pct:'20%',brand:'1-800-Flowers'},
+  ]},
+  49:{label:"🎄 Holiday Season",recs:[
+    {id:'s24',emoji:'🎁',label:'Gift Card Bundles: extra 10% value',short:'Gift Card Bonus',pct:'+10%',brand:'Multiple'},
+    {id:'s26',emoji:'📦',label:'Free Shipping on all online orders',short:'Free Shipping',pct:'Free',brand:'Multiple'},
+  ]},
+  50:{label:"🎄 Holiday Season",recs:[
+    {id:'s26',emoji:'📦',label:'Free Shipping on all online orders',short:'Free Shipping',pct:'Free',brand:'Multiple'},
+    {id:'s27',emoji:'💻',label:'Electronics: 20% off for holiday gifts',short:'20% Electronics',pct:'20%',brand:'Best Buy'},
+  ]},
+  51:{label:"🎄 Holiday Season",recs:[
+    {id:'s24',emoji:'🎁',label:'Gift Card Bundles: extra 10% value',short:'Gift Card Bonus',pct:'+10%',brand:'Multiple'},
+  ]},
+};
+
+const PTYPES = [
+  {id:'intranet',name:'Company Intranet',desc:'Embed a JavaScript widget into your HR portal or internal website.',emoji:'🖥️',cls:'intranet'},
+  {id:'slack',name:'Slack Channel',desc:'Install our Slack App and auto-post weekly discounts to any channel.',emoji:'💬',cls:'slack'},
+  {id:'email',name:'Company Email',desc:'Receive a pre-built branded email each week — ready to forward to employees.',emoji:'📧',cls:'email'},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let step = 1;
+let selTypes = [];
+let placements = [
+  {id:'p1',name:'Company Intranet',type:'intranet',status:'verified'},
+  {id:'p2',name:'#benefits-channel',type:'slack',status:'pending'},
+  {id:'p3',name:'HR Weekly Email',type:'email',status:'verified'},
+];
+let sched = {};
+let calStart = Math.max(1, getCurWeek() - 1);
+let dragD = null;
+
+function getCurWeek(){
+  const now = new Date(), y = new Date(now.getFullYear(),0,1);
+  return Math.min(52,Math.max(1,Math.ceil((now-y)/(7*864e5))));
+}
+
+function wkDates(w){
+  const jan1 = new Date(new Date().getFullYear(),0,1);
+  const dow = jan1.getDay();
+  const firstMon = new Date(jan1);
+  firstMon.setDate(jan1.getDate()+(dow===0?1:8-dow));
+  const s = new Date(firstMon); s.setDate(firstMon.getDate()+(w-1)*7);
+  const e = new Date(s); e.setDate(s.getDate()+6);
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const ms=M[s.getMonth()],me=M[e.getMonth()];
+  return{label:ms===me?`${ms} ${s.getDate()}–${e.getDate()}`:`${ms} ${s.getDate()} – ${me} ${e.getDate()}`,month:ms,year:s.getFullYear()};
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  document.querySelectorAll('[data-step]').forEach(el=>{
+    const s=+el.dataset.step;
+    el.className='sp '+(s===step?'active':s<step?'done':'pending');
+  });
+  document.getElementById('main').innerHTML = step===1?r1():step===2?r2():r3();
+}
+
+function tryStep(n){ if(n===2&&!placements.length)return; step=n; render(); }
+
+// ── STEP 1 ────────────────────────────────────────────────────────────────────
+function r1(){
+  const cards = PTYPES.map(t=>`
+    <div class="ptcard${selTypes.includes(t.id)?' sel':''}" onclick="toggleT('${t.id}')">
+      <div class="ptic ${t.cls}">${t.emoji}</div>
+      <div class="ptn">${t.name}</div>
+      <div class="ptd">${t.desc}</div>
+    </div>`).join('');
+
+  const plist = placements.length?`
+    <div style="font-size:11px;font-weight:700;color:var(--slate-m);text-transform:uppercase;letter-spacing:.6px;margin-bottom:11px;">Your Placements (${placements.length})</div>
+    <div class="plist">${placements.map(p=>`
+      <div class="pcard">
+        <div class="pcic" style="background:${p.type==='intranet'?'#EEF2FF':p.type==='slack'?'#FFF3EC':'#EDF9F4'}">${p.type==='intranet'?'🖥️':p.type==='slack'?'💬':'📧'}</div>
+        <div class="pci"><div class="pcn">${p.name}</div><div class="pct">${PTYPES.find(t=>t.id===p.type)?.name}</div></div>
+        <span class="pcst ${p.status}">${p.status==='verified'?'Connected':'Setup needed'}</span>
+        <button class="btn btn-s btn-sm" onclick="showSetup('${p.id}')">View Setup</button>
+        <button style="background:none;border:none;color:var(--slate-m);cursor:pointer;font-size:20px;padding:0 4px;line-height:1" onclick="removeP('${p.id}')">×</button>
+      </div>`).join('')}
+    </div>` : '';
+
+  const form = selTypes.length?`
+    <div class="spanel">
+      <h3>Add ${selTypes.map(id=>PTYPES.find(t=>t.id===id)?.name).join(' & ')}</h3>
+      <p>Give this placement a name so you can identify it in the scheduler.</p>
+      <div class="fld"><label>Placement Name</label>
+        <input id="pname" type="text" placeholder="e.g. Benefits Portal, #hr-deals, Monthly Newsletter" /></div>
+      ${selTypes.includes('slack')?`<div class="fld"><label>Slack Channel</label><select>
+        <option>#benefits-announcements</option><option>#general</option>
+        <option>#hr-updates</option><option>#employee-perks</option></select></div>`:''}
+      ${selTypes.includes('email')?`<div class="fld"><label>HR Delivery Email</label>
+        <input type="email" placeholder="hr-team@yourcompany.com" /></div>`:''}
+      <button class="btn btn-p" onclick="addP()">Add Placement →</button>
+    </div>` : '';
+
+  return `
+    <div class="stitle">Set Up Your Placements</div>
+    <div class="ssub">Select the internal channels where employees will see discount offers each week.</div>
+    <div class="ptgrid">${cards}</div>
+    ${form}${plist}
+    ${placements.length?`<div style="display:flex;justify-content:flex-end;margin-top:22px;">
+      <button class="btn btn-p btn-lg" onclick="tryStep(2)">Continue to Schedule →</button></div>`:''}`;
+}
+
+function toggleT(id){ selTypes=selTypes.includes(id)?selTypes.filter(x=>x!==id):[id]; render(); }
+
+function addP(){
+  const name=document.getElementById('pname')?.value?.trim();
+  selTypes.forEach(type=>placements.push({id:'p'+Date.now()+type,name:name||PTYPES.find(t=>t.id===type)?.name,type,status:type==='email'?'verified':'pending'}));
+  selTypes=[]; render();
+}
+
+function removeP(id){ placements=placements.filter(p=>p.id!==id); render(); }
+
+function showSetup(pid){
+  const p=placements.find(x=>x.id===pid);
+  let body='';
+  if(p.type==='intranet'){
+    body=`<p style="font-size:13px;color:var(--slate-m);margin-bottom:14px;">Paste this snippet into the <code style="background:var(--slate-l);padding:2px 5px;border-radius:4px;">&lt;head&gt;</code> of your intranet page. The discount widget renders automatically each week.</p>
+      <div class="codeb"><button class="cpybtn" onclick="navigator.clipboard?.writeText(this.nextElementSibling.textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)">Copy</button><span>&lt;script
+  src="https://cdn.lifemart.com/embed.js"
+  data-placement-id="${pid}"
+  data-theme="teal"&gt;
+&lt;/script&gt;</span></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
+        <span style="font-size:13px;color:var(--slate-m);">Status:</span>
+        <span class="pcst ${p.status}">${p.status==='verified'?'Verified':'Awaiting verification'}</span>
+        ${p.status!=='verified'?`<button class="btn btn-sm btn-p" onclick="verifyP('${pid}')">Verify Installation</button>`:''}
+      </div>`;
+  }else if(p.type==='slack'){
+    body=`<p style="font-size:13px;color:var(--slate-m);margin-bottom:15px;">Install the LifeMart Slack App to your workspace, then connect it to auto-post weekly discounts.</p>
+      <button class="btn btn-p" style="background:#4A154B;margin-bottom:16px;font-size:14px;">⚡ Install LifeMart Slack App</button>
+      <div style="font-size:13px;color:var(--slate-m);line-height:1.75;background:var(--slate-l);border-radius:9px;padding:14px;">
+        After installation:<br>
+        1. Open Slack and find the LifeMart app<br>
+        2. Select <strong style="color:var(--slate);">${p.name}</strong> as the posting channel<br>
+        3. Posts go out every Monday at 8:00 AM automatically
+      </div>`;
+  }else{
+    body=`<p style="font-size:13px;color:var(--slate-m);margin-bottom:14px;">We'll deliver a fully designed HTML email to your HR inbox each week. Forward it or schedule it through your own platform.</p>
+      <div style="font-size:13px;line-height:1.8;background:var(--slate-l);border-radius:9px;padding:16px;border:1px solid var(--border);">
+        📬&nbsp; <strong>Delivery:</strong> hr-team@company.com<br>
+        📅&nbsp; <strong>Schedule:</strong> Every Monday at 7:00 AM<br>
+        ✅&nbsp; <strong>Status:</strong> Active &amp; confirmed<br>
+        📋&nbsp; <strong>Format:</strong> Branded HTML, mobile-friendly
+      </div>`;
+  }
+  modal(`Setup: ${p.name}`,PTYPES.find(t=>t.id===p.type)?.name,body);
+}
+
+function verifyP(pid){ const p=placements.find(x=>x.id===pid); if(p)p.status='verified'; closeM(); render(); }
+
+// ── STEP 2 ────────────────────────────────────────────────────────────────────
+function r2(){
+  const cur=getCurWeek();
+  const weeks=[calStart,calStart+1,calStart+2].filter(w=>w>=1&&w<=52);
+  const filled=Object.keys(sched).filter(w=>sched[w]&&Object.values(sched[w]).some(a=>a?.length>0)).length;
+  const pct=Math.round(filled/52*100);
+
+  const whtml=weeks.map(w=>{
+    const{label,month,year}=wkDates(w);
+    const sea=SEASONAL[w];
+    const isCur=w===cur, isPast=w<cur;
+    const seaIds=new Set((sea?.recs||[]).map(r=>r.id));
+    const allD=sea?[...sea.recs,...DISCOUNTS]:DISCOUNTS;
+    const tiles=allD.map(d=>`
+      <div class="dtile${seaIds.has(d.id)?' srec':''}" draggable="true"
+        ondragstart="dragD=${JSON.stringify(d).replace(/\\/g,'\\\\').replace(/"/g,'&quot;')};event.dataTransfer.effectAllowed='copy'">
+        <span class="dtem">${d.emoji}</span>
+        <span class="dttx">${d.label}</span>
+        <span class="dth">⠿</span>
+      </div>`).join('');
+    const zones=placements.map(p=>{
+      const asgn=sched[w]?.[p.id]||[];
+      const icon=p.type==='intranet'?'🖥️':p.type==='slack'?'💬':'📧';
+      const nm=p.name.length>16?p.name.slice(0,16)+'…':p.name;
+      const badges=asgn.map(d=>`
+        <div class="adic">${d.emoji} <span style="flex:1">${d.short}</span>
+          <span class="adrem" onclick="rmA(${w},'${p.id}','${d.id}')">×</span>
+        </div>`).join('');
+      return`<div class="dz" id="dz${w}${p.id}"
+        ondragover="event.preventDefault();this.classList.add('over')"
+        ondragleave="this.classList.remove('over')"
+        ondrop="dropD(event,${w},'${p.id}')">
+        <div class="dzlbl"><span>${icon}</span>${nm}</div>${badges}
+      </div>`;
+    }).join('');
+    let cls='wcard';
+    if(isCur)cls+=' cur';
+    if(isPast)cls+=' past';
+    if(sea)cls+=' sea';
+    const hdRight=sea?`<div class="seabadge">${sea.label}</div>`:isCur?`<div class="nowbadge">This week</div>`:'';
+    return`<div class="${cls}">
+      <div class="wh">
+        <div><div class="wnum">Week ${w}</div><div class="wdates">${label}</div><div class="wmonth">${month} ${year}</div></div>
+        ${hdRight}
+      </div>
+      <div class="wb">
+        <div class="wcols">
+          <div><div class="colh">Discounts${sea?` · ${sea.recs.length} seasonal`:''}</div>
+            <div class="dtiles">${tiles}</div></div>
+          <div><div class="colh">Placements</div>
+            <div class="dzones">${zones}</div></div>
+        </div>
+      </div>
+      <div class="wf"><button class="pvbtn" onclick="showPrev(${w})">👁 Preview creative</button></div>
+    </div>`;
+  }).join('');
+
+  return`
+    <div class="calh">
+      <div><div class="stitle">Discount Schedule</div>
+        <div class="ssub">Drag any discount onto a placement. Amber tiles are seasonal recommendations.</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:9px;">
+        <div class="navrow">
+          <button class="navbtn" ${calStart<=1?'disabled':''} onclick="nav(-3)">‹ Back</button>
+          <span class="navpos">Weeks ${calStart}–${Math.min(calStart+2,52)} / 52</span>
+          <button class="navbtn" ${calStart+2>=52?'disabled':''} onclick="nav(3)">Next ›</button>
+        </div>
+        <button class="btn btn-s btn-sm" onclick="jumpNow()">↩ This week</button>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="legdot" style="background:var(--teal-l);border:1px solid #B0DDCE"></div>Available discount</div>
+      <div class="leg"><div class="legdot" style="background:var(--orange-l);border:1px solid #F5C875"></div>Seasonal pick</div>
+      <div class="leg"><div class="legdot" style="background:var(--coral-l);border:1px solid #F5C4B3"></div>Scheduled</div>
+      <div class="leg"><div class="legdot" style="background:var(--teal-d);border:1px solid var(--teal-m)"></div>Current week</div>
+    </div>
+    <div class="wgrid">${whtml}</div>
+    <div class="savebar">
+      <div class="progwrap">
+        <div class="proglbl">${filled} of 52 weeks scheduled · ${pct}% complete</div>
+        <div class="progbar"><div class="progfill" style="width:${pct}%"></div></div>
+      </div>
+      <div style="display:flex;gap:11px;align-items:center;">
+        <button class="btn btn-s" onclick="tryStep(1)">← Edit Placements</button>
+        <button class="btn btn-p btn-lg" onclick="tryStep(3)">Save &amp; Activate ✓</button>
+      </div>
+    </div>`;
+}
+
+function nav(d){ calStart=Math.max(1,Math.min(50,calStart+d)); render(); }
+function jumpNow(){ calStart=Math.max(1,getCurWeek()-1); render(); }
+
+function dropD(ev,w,pid){
+  ev.preventDefault(); ev.currentTarget.classList.remove('over');
+  if(!dragD)return;
+  let d; try{d=typeof dragD==='string'?JSON.parse(dragD):dragD;}catch(e){return;}
+  if(!sched[w])sched[w]={};
+  if(!sched[w][pid])sched[w][pid]=[];
+  if(!sched[w][pid].find(x=>x.id===d.id))sched[w][pid].push(d);
+  render();
+}
+
+function rmA(w,pid,did){
+  if(sched[w]?.[pid])sched[w][pid]=sched[w][pid].filter(d=>d.id!==did);
+  render();
+}
+
+// ── PREVIEW ───────────────────────────────────────────────────────────────────
+function showPrev(w){
+  const{label}=wkDates(w);
+  const sea=SEASONAL[w];
+  const asgn=sched[w]||{};
+  const tabs=placements.map((p,i)=>`
+    <button class="mtab${i===0?' active':''}" onclick="swTab(this,'pt${w}${i}')">
+      ${p.type==='intranet'?'🖥️':p.type==='slack'?'💬':'📧'}
+      ${p.name.length>12?p.name.slice(0,12)+'…':p.name}
+    </button>`).join('');
+  const panes=placements.map((p,i)=>{
+    let pd=(asgn[p.id]||[]);
+    if(!pd.length)pd=(sea?[...sea.recs,...DISCOUNTS]:DISCOUNTS).slice(0,3);
+    let inner='';
+    if(p.type==='intranet'){inner=`
+      <div class="pv-intra">
+        <div class="pv-ibar"><div class="pv-ilogo">🏢 Acme Corp — Employee Hub</div></div>
+        <div class="pv-ibody"><div class="iwid">
+          <div class="wacc"></div>
+          <div class="wcnt">
+            <div class="weyb">🎁 Employee Benefits · Week ${w}</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:2px;">Your Exclusive Discounts</div>
+            <div style="font-size:12px;color:var(--slate-m);margin-bottom:11px;">${sea?sea.label+' — limited-time deals.':'Fresh savings available this week.'}</div>
+            <div class="wofrs">${pd.slice(0,3).map(d=>`
+              <div class="wofr">
+                <span style="font-size:18px;">${d.emoji}</span>
+                <div style="flex:1"><div class="oname">${d.brand||d.label}</div><div class="osub">${d.label}</div></div>
+                <div class="obadge">${d.pct||'Deal'}</div>
+              </div>`).join('')}
+            </div>
+            <button class="wcta">Claim Deals on LifeMart →</button>
+          </div>
+        </div></div>
+      </div>`;}
+    else if(p.type==='slack'){inner=`
+      <div class="pv-slack">
+        <div class="slside"># ${p.name.replace(/^#/,'')}</div>
+        <div class="slmsg">
+          <div class="slbh">
+            <div class="slav">L</div>
+            <span class="slbn">LifeMart Bot</span><span class="slba">APP</span>
+            <span style="color:rgba(255,255,255,.3);font-size:11px;margin-left:auto;">Mon 8:00 AM</span>
+          </div>
+          <div class="sltx">Hey team 👋 Your exclusive employee discounts for <strong style="color:white;">Week ${w}</strong>${sea?' — '+sea.label+'!':'!'}</div>
+          <div class="slatt">
+            <div class="slat">🎁 This Week's Top Deals</div>
+            ${pd.slice(0,4).map(d=>`<div class="slai"><span>${d.emoji}</span>${d.label}</div>`).join('')}
+            <div style="margin-top:11px;"><span style="background:var(--teal);color:white;font-size:11px;font-weight:700;padding:6px 13px;border-radius:5px;cursor:pointer;">View All Deals on LifeMart →</span></div>
+          </div>
+        </div>
+      </div>`;}
+    else{inner=`
+      <div class="pv-email">
+        <div class="emhdr"><div class="emlogo">LifeMart</div><div class="emtag">Your Employee Discount Benefit</div></div>
+        <div class="embody">
+          <div class="emgr">Hi [First Name],</div>
+          <div class="emin">Your exclusive employee discounts for ${label}${sea?' ('+sea.label+')':''} are live now. Log in to claim your savings.</div>
+          <div class="emofrs">${pd.slice(0,4).map(d=>`
+            <div class="emofc">
+              <div style="font-size:20px;margin-bottom:4px;">${d.emoji}</div>
+              <div class="emopct">${d.pct||'Deal'}</div>
+              <div class="emoname">${d.brand||'Select Partners'}</div>
+            </div>`).join('')}
+          </div>
+          <div class="emctaw"><button class="emcta">Claim Your Deals →</button></div>
+        </div>
+        <div class="emftr">You're receiving this as an employee benefit &nbsp;·&nbsp; <span style="color:var(--teal);cursor:pointer;">Unsubscribe</span></div>
+      </div>`;}
+    return`<div id="pt${w}${i}" class="tpane${i===0?' show':''}">${inner}</div>`;
+  }).join('');
+  const seaNote=sea?`<div style="margin-top:15px;padding:11px 14px;background:var(--orange-l);border:1px solid #F5C875;border-radius:9px;font-size:12px;color:#7A5500;"><strong>${sea.label}:</strong> ${sea.recs.length} seasonal recommendation${sea.recs.length>1?'s are':' is'} mixed into this week's library.</div>`:'';
+  modal(`Creative Preview — Week ${w}`,label,`<div class="mtabs">${tabs}</div>${panes}${seaNote}`);
+}
+
+function swTab(el,id){
+  el.closest('.mbody').querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  el.closest('.mbody').querySelectorAll('.tpane').forEach(t=>t.classList.remove('show'));
+  document.getElementById(id)?.classList.add('show');
+}
+
+// ── STEP 3 ────────────────────────────────────────────────────────────────────
+function r3(){
+  const filled=Object.keys(sched).filter(w=>sched[w]&&Object.values(sched[w]).some(a=>a?.length>0)).length;
+  const total=Object.values(sched).reduce((a,wd)=>a+Object.values(wd||{}).reduce((b,arr)=>b+(arr?.length||0),0),0);
+  return`<div class="succ">
+    <div class="sico">🎉</div>
+    <div class="stit">Schedule Activated!</div>
+    <div class="ssb">Your discount placements are live. Deals will be automatically delivered to each channel when their week arrives — no further action needed.</div>
+    <div class="scards">
+      <div class="sc"><div class="scn">${placements.length}</div><div class="scl">Active placements</div></div>
+      <div class="sc"><div class="scn">${filled}</div><div class="scl">Weeks scheduled</div></div>
+      <div class="sc"><div class="scn">${total}</div><div class="scl">Discount assignments</div></div>
+    </div>
+    <div style="display:flex;gap:13px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-s btn-lg" onclick="tryStep(2)">← Continue Scheduling</button>
+      <button class="btn btn-p btn-lg" onclick="tryStep(1)">Manage Placements</button>
+    </div>
+  </div>`;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function modal(title,sub,body){
+  document.getElementById('mroot').innerHTML=`
+    <div class="moverlay" onclick="if(event.target===this)closeM()">
+      <div class="modal">
+        <div class="mhdr">
+          <div><div class="mtitle">${title}</div>${sub?`<div class="msub">${sub}</div>`:''}</div>
+          <button class="mclose" onclick="closeM()">×</button>
+        </div>
+        <div class="mbody">${body}</div>
+      </div>
+    </div>`;
+}
+function closeM(){ document.getElementById('mroot').innerHTML=''; }
+
+render();
+</script>
+</body>
+</html>
